@@ -2,12 +2,15 @@
 # install brew first
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
 brew list iterm2 || brew install --cask iterm2;
+brew list zsh-completions || 
 
 # k8s related tools
 brew list kubectl || brew install kubectl;
 echo "source <(kubectl completion zsh)" >> ~/.zshrc;
 brew list kubectx || brew install kubectx;
 brew list helm || brew install helm;
+brew list k9s || brew install derailed/k9s/k9s;
+which istioctl ||  curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH
 
 # install useful applications
 ## via homebrew
@@ -45,7 +48,8 @@ mas list | grep 'Tayasui Sketches' || mas install 1178074963;
 
 # install developer tools
 brew list git || brew install git;
-brew install --cask proxyman;
+brew list proxyman || brew install --cask proxyman;
+brew list vegeta ||  brew install vegeta;
 
 # install language runtimes
 ## NodeJS
