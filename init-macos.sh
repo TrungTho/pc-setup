@@ -50,6 +50,7 @@ mas list | grep 'Tayasui Sketches' || mas install 1178074963;
 brew list git || brew install git;
 brew list proxyman || brew install --cask proxyman;
 brew list vegeta ||  brew install vegeta;
+brew list podman || brew install podman;
 
 # install language runtimes
 ## NodeJS
