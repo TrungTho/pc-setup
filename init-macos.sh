@@ -1,12 +1,11 @@
 #!/usr/sh
 # install brew first
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
+which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
 brew list iterm2 || brew install --cask iterm2;
-brew list zsh-completions || 
+brew list zsh-completions || brew install zsh-completions;
 
 # k8s related tools
-brew list kubectl || brew install kubectl;
-echo "source <(kubectl completion zsh)" >> ~/.zshrc;
+brew list kubectl || brew install kubectl && echo "source <(kubectl completion zsh)" >> ~/.zshrc;
 brew list kubectx || brew install kubectx;
 brew list helm || brew install helm;
 brew list k9s || brew install derailed/k9s/k9s;
@@ -53,9 +52,13 @@ brew list vegeta ||  brew install vegeta;
 brew list podman || brew install podman;
 
 # install language runtimes
+## Golang
+brew list go || brew install go;
+
 ## NodeJS
 brew list nvm || brew install nvm;
 nvm install 18.12.1;
+
 ## sdk and Java17
 sdk version || curl -s "https://get.sdkman.io" | bash && source "/Users/$USER/.sdkman/bin/sdkman-init.sh";
 java --version || sdk install java 17.0.7-tem;
