@@ -73,6 +73,7 @@ else
 fi
 ;
 
+brew list visualvm || brew install --cask visualvm;
 
 # install IDE
 brew list visual-studio-code || brew install --cask visual-studio-code;
