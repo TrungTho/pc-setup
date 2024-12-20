@@ -54,6 +54,7 @@ brew list podman || brew install podman;
 # install language runtimes
 ## Golang
 brew list go || brew install go;
+brew list golang-migrate || brew install golang-migrate;
 
 ## NodeJS
 brew list nvm || brew install nvm;
