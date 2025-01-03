@@ -44,12 +44,16 @@ mas list | grep 'PomoDone' || mas install 1096128050;
 mas list | grep 'Rad Timer' || mas install 6461776692;
 mas list | grep 'Irvue' || mas install 1039633667;
 mas list | grep 'Tayasui Sketches' || mas install 1178074963;
+mas list | grep 'MasDroid' || mas install 1476545828;
 
 # install developer tools
 brew list git || brew install git;
 brew list proxyman || brew install --cask proxyman;
 brew list vegeta ||  brew install vegeta;
 brew list podman || brew install podman;
+brew list liquibase || brew install liquibase;
+brew list sqlc || brew install sqlc;
+
 
 # install language runtimes
 ## Golang
