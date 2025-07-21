@@ -26,7 +26,8 @@ brew list microsoft-edge || brew install --cask microsoft-edge;
 brew list pstree || brew install pstree;
 brew list sysdig || brew install sysdig;
 brew list jq || brew install jq;
-brew list karabiner || brew install --cask karabiner-elements;
+brew list ansible || brew install ansible;
+# brew list karabiner || brew install --cask karabiner-elements;
 #brew list microsoft-outlook || brew install --cask microsoft-outlook;
 
 ## via appstore
@@ -53,7 +54,7 @@ brew list vegeta ||  brew install vegeta;
 brew list podman || brew install podman;
 brew list liquibase || brew install liquibase;
 brew list sqlc || brew install sqlc;
-
+brew list protobuf || brew install protobuf;
 
 # install language runtimes
 ## Golang
