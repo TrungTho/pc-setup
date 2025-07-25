@@ -1,38 +1,39 @@
 #!/usr/sh
 # install brew first
 which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";
-brew list iterm2 || brew install --cask iterm2;
-brew list zsh-completions || brew install zsh-completions;
+brew install --cask iterm2;
+brew install zsh-completions;
 
 # k8s related tools
-brew list kubectl || brew install kubectl && echo "source <(kubectl completion zsh)" >> ~/.zshrc;
-brew list kubectx || brew install kubectx;
-brew list helm || brew install helm;
-brew list k9s || brew install derailed/k9s/k9s;
+brew install kubectl && echo "source <(kubectl completion zsh)" >> ~/.zshrc;
+brew install kubectx;
+brew install helm;
+brew install derailed/k9s/k9s;
 which istioctl ||  curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH
 
 # install useful applications
 ## via homebrew
-brew list zoom || brew install --cask zoom;
-brew list google-chrome || brew install --cask google-chrome;
-brew list aerial || brew install --cask aerial;
-brew list notion || brew install --cask notion;
-brew list postman || brew install --cask postman;
-brew list docker || brew install --cask docker;
-brew list dbeaver-community || brew install --cask dbeaver-community;
-brew list keka || brew install --cask keka;
-brew list openkey || brew install --cask openkey;
-brew list microsoft-edge || brew install --cask microsoft-edge;
-brew list pstree || brew install pstree;
-brew list sysdig || brew install sysdig;
-brew list jq || brew install jq;
-brew list ansible || brew install ansible;
-# brew list karabiner || brew install --cask karabiner-elements;
-#brew list microsoft-outlook || brew install --cask microsoft-outlook;
+brew install --cask zoom;
+brew install --cask google-chrome;
+brew install --cask aerial;
+brew install --cask notion;
+brew install --cask postman;
+brew install --cask docker;
+brew install --cask dbeaver-community;
+brew install --cask keka;
+brew install --cask openkey;
+brew install --cask microsoft-edge;
+brew install pstree;
+brew install sysdig;
+brew install jq;
+brew install ansible;
+brew install zig;
+# brew install --cask karabiner-elements;
+#brew install --cask microsoft-outlook;
 
 ## via appstore
 ### install mas first
-brew list mas || brew install mas;
+brew install mas;
 
 ### login to appstore first time
 mas reset;
@@ -48,21 +49,21 @@ mas list | grep 'Tayasui Sketches' || mas install 1178074963;
 mas list | grep 'MasDroid' || mas install 1476545828;
 
 # install developer tools
-brew list git || brew install git;
-brew list proxyman || brew install --cask proxyman;
-brew list vegeta ||  brew install vegeta;
-brew list podman || brew install podman;
-brew list liquibase || brew install liquibase;
-brew list sqlc || brew install sqlc;
-brew list protobuf || brew install protobuf;
+brew install git;
+brew install --cask proxyman;
+ brew install vegeta;
+brew install podman;
+brew install liquibase;
+brew install sqlc;
+brew install protobuf;
 
 # install language runtimes
 ## Golang
-brew list go || brew install go;
-brew list golang-migrate || brew install golang-migrate;
+brew install go;
+brew install golang-migrate;
 
 ## NodeJS
-brew list nvm || brew install nvm;
+brew install nvm;
 nvm install 18.12.1;
 
 ## sdk and Java17
@@ -79,11 +80,11 @@ else
 fi
 ;
 
-brew list visualvm || brew install --cask visualvm;
+brew install --cask visualvm;
 
 # install IDE
-brew list visual-studio-code || brew install --cask visual-studio-code;
-brew list intellij-idea-ce || brew install --cask intellij-idea-ce;
+brew install --cask visual-studio-code;
+brew install --cask intellij-idea-ce;
 
 # additional set up
 ## set up vi
