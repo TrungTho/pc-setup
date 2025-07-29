@@ -23,11 +23,6 @@ brew install --cask dbeaver-community;
 brew install --cask keka;
 brew install --cask openkey;
 brew install --cask microsoft-edge;
-brew install pstree;
-brew install sysdig;
-brew install jq;
-brew install ansible;
-brew install zig;
 # brew install --cask karabiner-elements;
 #brew install --cask microsoft-outlook;
 
@@ -56,6 +51,13 @@ brew install podman;
 brew install liquibase;
 brew install sqlc;
 brew install protobuf;
+brew install opentofu;
+brew install pstree;
+brew install sysdig;
+brew install jq;
+brew install yq;
+brew install ansible;
+brew install zig;
 
 # install language runtimes
 ## Golang
