@@ -46,7 +46,7 @@ mas list | grep 'MasDroid' || mas install 1476545828;
 # install developer tools
 brew install git;
 brew install --cask proxyman;
- brew install vegeta;
+brew install vegeta;
 brew install podman;
 brew install liquibase;
 brew install sqlc;
@@ -57,7 +57,9 @@ brew install sysdig;
 brew install jq;
 brew install yq;
 brew install ansible;
+brew install ansible-lint;
 brew install zig;
+brew install direnv;
 
 # install language runtimes
 ## Golang

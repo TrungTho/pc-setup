@@ -1,0 +1,55 @@
+---
+# This playbook doesn't support window machine
+- name: Configuring MacOS machine
+  gather_facts: true
+  hosts: localhost
+
+  vars:
+    general_dependencies:
+      - kubectx
+    brew_cask_dependencies:
+      - iterm2
+      # - zoom
+      - google-chrome
+      - aerial
+      - notion
+      - postman
+      - docker
+      - dbeaver-community
+      - keka
+      - openkey
+      - microsoft-edge
+    brew_dependencies:
+      - zsh-completions
+      - mas
+
+  tasks:
+    - name: OS details
+      ansible.builtin.debug:
+        msg: "{{ ansible_os_family }}"
+
+    - name: Exit unsupported OS
+      ansible.builtin.meta: end_host
+      when: ansible_os_family == "Windows"
+
+    - name: Install general dependencies
+      ansible.builtin.package:
+        name: "{{ general_dependencies }}"
+        state: present
+
+    - name: Install MacOS dependencies
+      when: ansible_os_family == "Darwin"
+      block:
+        - name: Install OSS using homebrew
+          ansible.builtin.homebrew:
+            name: "{{ brew_dependencies }}"
+            state: present
+
+        - name: Install tools using homebrew_cask
+          community.general.homebrew_cask:
+            name: "{{ brew_cask_dependencies }}"
+            state: present
+            accept_external_apps: true
+
+        - name: Update ~/.zshrc
+          ansible.builtin.shell:
