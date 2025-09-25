@@ -1,7 +1,7 @@
 .PHONY: run
 run:
-	ansible-playbook deps-installation.yml
+	ansible-playbook -v deps-installation.yml
 
 .PHONY: debug
 debug:
-	ansible-playbook -vv deps-installation.yml
+	ansible-playbook -vvv deps-installation.yml

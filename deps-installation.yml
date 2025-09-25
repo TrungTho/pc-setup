@@ -6,22 +6,32 @@
 
   vars:
     general_dependencies:
+      - kubectl
       - kubectx
+      - helm
     brew_cask_dependencies:
       - iterm2
       # - zoom
-      - google-chrome
-      - aerial
-      - notion
-      - postman
-      - docker
-      - dbeaver-community
-      - keka
-      - openkey
-      - microsoft-edge
+      # - google-chrome
+      # - aerial
+      # - notion
+      # - postman
+      # - docker
+      # - dbeaver-community
+      # - keka
+      # - openkey
+      # - microsoft-edge
     brew_dependencies:
       - zsh-completions
       - mas
+      - derailed/k9s/k9s
+    apt_dependencies:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    snap_dependencies:
+      - k9s
 
   tasks:
     - name: OS details
@@ -45,11 +55,44 @@
             name: "{{ brew_dependencies }}"
             state: present
 
-        - name: Install tools using homebrew_cask
-          community.general.homebrew_cask:
-            name: "{{ brew_cask_dependencies }}"
-            state: present
-            accept_external_apps: true
+        # - name: Install tools using homebrew_cask
+        #   community.general.homebrew_cask:
+        #     name: "{{ brew_cask_dependencies }}"
+        #     state: present
+        #     accept_external_apps: true
+        #     install_options: "debug"
 
         - name: Update ~/.zshrc
-          ansible.builtin.shell:
+          ansible.builtin.shell: |
+            if ! (cat ~/.zshrc | grep 'kubectl completion zsh') &> /dev/null; then
+              echo "source <(kubectl completion zsh)";
+            else
+              echo "existed";
+            fi;
+          register: zsh_output
+          changed_when: zsh_output.stdout != "existed"
+
+    - name: Install Ubuntu dependencies
+      when: ansible_os_family != "Darwin"
+      block:
+        - name: Install APT dependencies
+          ansible.builtin.apt:
+            update_cache: true
+            name: "{{ apt_dependencies }}"
+
+        - name: Install kubectl
+          community.general.snap:
+            name: "{{ snap_dependencies }}"
+            classic: yes
+            channel: stable
+
+    # Custom install tools
+    - name: Install Istio
+      ansible.builtin.shell: |
+        if ! (which istioctl) &> /dev/null; then
+          (curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH);
+        else
+          echo "existed";
+        fi;
+      register: istio_output
+      changed_when: istio_output.stdout != "existed"
