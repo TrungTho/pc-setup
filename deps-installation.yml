@@ -25,6 +25,14 @@
       - zsh-completions
       - mas
       - derailed/k9s/k9s
+    mas_dependencies:
+      - 1216253186 # Apnea
+      - 595191960 # CopyClip
+      - 1096128050 # PomoDone
+      - 6461776692 # Rad timer
+      - 1039633667 # Irvue
+      - 1178074963 # Tayasui Sketches
+      - 1476545828 # MasDroid
     apt_dependencies:
       - apt-transport-https
       - ca-certificates
@@ -32,6 +40,7 @@
       - gnupg
     snap_dependencies:
       - k9s
+      - dbeaver-ce
 
   tasks:
     - name: OS details
@@ -61,6 +70,11 @@
         #     state: present
         #     accept_external_apps: true
         #     install_options: "debug"
+
+        # - name: Install applications from AppStore using mas
+        #   community.general.mas:
+        #     id: "{{ mas_dependencies }}"
+        #     state: present
 
         - name: Update ~/.zshrc
           ansible.builtin.shell: |
