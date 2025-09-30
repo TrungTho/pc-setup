@@ -9,6 +9,10 @@
       - kubectl
       - kubectx
       - helm
+      - git
+      - podman
+      - liquibase
+      - sqlc
     brew_cask_dependencies:
       - iterm2
       # - zoom
@@ -21,10 +25,13 @@
       # - keka
       # - openkey
       # - microsoft-edge
+      # - proxyman
     brew_dependencies:
       - zsh-completions
       - mas
       - derailed/k9s/k9s
+      - vegeta
+      - protobuf
     mas_dependencies:
       - 1216253186 # Apnea
       - 595191960 # CopyClip
@@ -38,6 +45,7 @@
       - ca-certificates
       - curl
       - gnupg
+      - protobuf-compiler
     snap_dependencies:
       - k9s
       - dbeaver-ce
@@ -94,11 +102,21 @@
             update_cache: true
             name: "{{ apt_dependencies }}"
 
-        - name: Install kubectl
+        - name: Install snap dependencies
           community.general.snap:
             name: "{{ snap_dependencies }}"
             classic: yes
             channel: stable
+
+        - name: Install vegeta
+          ansible.builtin.shell: |
+            cd ~;
+            git clone https://github.com/tsenart/vegeta;
+            cd vegeta;
+            make vegeta;
+            mv vegeta ~/bin;
+            cd ~;
+            rm -rf vegeta;
 
     # Custom install tools
     - name: Install Istio
