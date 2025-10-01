@@ -1,1 +1,6 @@
 .envrc
+.terraform/*
+.terraform.*
+terraform.*
+*.pem
+.env
