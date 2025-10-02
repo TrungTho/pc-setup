@@ -13,6 +13,10 @@
       - podman
       - liquibase
       - sqlc
+      - sysdig
+      - jq
+      - yq
+      - direnv
     brew_cask_dependencies:
       - iterm2
       # - zoom
@@ -32,6 +36,10 @@
       - derailed/k9s/k9s
       - vegeta
       - protobuf
+      - opentofu
+      - pstree
+      - zig
+      - go
     mas_dependencies:
       - 1216253186 # Apnea
       - 595191960 # CopyClip
@@ -46,9 +54,13 @@
       - curl
       - gnupg
       - protobuf-compiler
+      - psmisc
+      - golang-go
     snap_dependencies:
       - k9s
       - dbeaver-ce
+      - opentofu
+      - zig
 
   tasks:
     - name: OS details
@@ -86,10 +98,18 @@
 
         - name: Update ~/.zshrc
           ansible.builtin.shell: |
+            # kubectl completion
             if ! (cat ~/.zshrc | grep 'kubectl completion zsh') &> /dev/null; then
               echo "source <(kubectl completion zsh)";
             else
-              echo "existed";
+              echo "kubectl completion existed";
+            fi;
+
+            # direnv
+            if ! (cat ~/.zshrc | grep 'direnv hook zsh') &> /dev/null; then
+              echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc;
+            else
+              echo "direnv existed";
             fi;
           register: zsh_output
           changed_when: zsh_output.stdout != "existed"
@@ -97,6 +117,20 @@
     - name: Install Ubuntu dependencies
       when: ansible_os_family != "Darwin"
       block:
+        - name: Trust GPG key and configure APT repositories
+          ansible.builtin.shell: |
+            # sysdig
+            curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | sudo apt-key add -;
+            sudo curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
+
+            # git
+            add-apt-repository ppa:git-core/ppa;
+            sudo apt-get update;
+
+            # yq
+            sudo add-apt-repository ppa:rmescandon/yq
+          changed_when: false
+
         - name: Install APT dependencies
           ansible.builtin.apt:
             update_cache: true
@@ -110,21 +144,50 @@
 
         - name: Install vegeta
           ansible.builtin.shell: |
-            cd ~;
-            git clone https://github.com/tsenart/vegeta;
-            cd vegeta;
-            make vegeta;
-            mv vegeta ~/bin;
-            cd ~;
-            rm -rf vegeta;
+            if which vegeta > /dev/null 2>&1; then
+              echo "vegeta is already installed";
+            else
+              echo "installing vegeta..."
+              cd ~;
+              git clone https://github.com/tsenart/vegeta;
+              cd vegeta;
+              make vegeta;
+              mv vegeta ~/bin;
+              cd ~;
+              rm -rf vegeta;
+            fi;
+          changed_when: false;
+
+        - name: Update ~/.bashrc
+          ansible.builtin.shell: |
+            # direnv
+            if ! (cat ~/.zshrc | grep 'direnv hook zsh') &> /dev/null; then
+              echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc;
+            else
+              echo "direnv existed";
+            fi;
 
     # Custom install tools
-    - name: Install Istio
-      ansible.builtin.shell: |
-        if ! (which istioctl) &> /dev/null; then
-          (curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH);
-        else
-          echo "existed";
-        fi;
-      register: istio_output
-      changed_when: istio_output.stdout != "existed"
+    - name: Custom install general tools
+      block:
+        - name: Install Istio
+          ansible.builtin.shell: |
+            if ! (which istioctl) &> /dev/null; then
+              echo "installing istio";
+              (curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH);
+            else
+              echo "istio existed";
+            fi;
+          changed_when: istio_output.stdout != "existed"
+
+        - name: Install nvm
+          ansible.builtin.shell: |
+            if ! (which nvm) &> /dev/null; then
+              echo "installing nvm";
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash;
+            else
+              echo "nvm existed";
+            fi;
+          args:
+            creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+          changed_when: false

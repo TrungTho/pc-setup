@@ -85,8 +85,6 @@ fi
 # brew install sysdig;
 # brew install jq;
 # brew install yq;
-# brew install ansible;
-# brew install ansible-lint;
 # brew install zig;
 # brew install direnv;
 
