@@ -1,5 +1,3 @@
-include .env
-
 .PHONY: run
 run:
 	ansible-playbook -v deps-installation.yml
@@ -22,17 +20,21 @@ plan: validate
 
 .PHONY: apply
 apply:
-	tofu apply -auto-approve
+	tofu apply -auto-approve;
 
 .PHONY: stop
 stop:
-	aws ec2 stop-instances --instance-ids $(INSTANCE_ID)
+	INSTANCE_ID=$$(tofu output -raw instance_id); \
+	aws ec2 stop-instances --instance-ids $$INSTANCE_ID
 
 .PHONY: start
 start:
-	aws ec2 start-instances --instance-ids $(INSTANCE_ID)
-	aws ec2 wait instance-running --instance-ids $(INSTANCE_ID)
+	INSTANCE_ID=$$(tofu output -raw instance_id); \
+	aws ec2 start-instances --instance-ids $$INSTANCE_ID; \
+	aws ec2 wait instance-running --instance-ids $$INSTANCE_ID
 
 .PHONY: ssh
 ssh:
-	ssh -i $(PRIVATE_KEY_NAME) ubuntu@$(PUBLIC_IP)
+	PRIVATE_KEY_NAME=$$(tofu output -raw private_key_file); \
+	PUBLIC_IP=$$(tofu output -raw instance_public_ip); \
+	ssh -i $$PRIVATE_KEY_NAME ubuntu@$$PUBLIC_IP
