@@ -38,3 +38,8 @@ ssh:
 	PRIVATE_KEY_NAME=$$(tofu output -raw private_key_file); \
 	PUBLIC_IP=$$(tofu output -raw instance_public_ip); \
 	ssh -i $$PRIVATE_KEY_NAME ubuntu@$$PUBLIC_IP
+	ssh -i $(PRIVATE_KEY_NAME) ubuntu@$(PUBLIC_IP)
+
+.PHONY: login
+login:
+	sh aws-sso.sh 465836752403 AVM-AdministratorAccess-d97965
