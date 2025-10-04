@@ -7,6 +7,7 @@
   vars:
     general_dependencies:
       - kubectl
+      - bash-completion
       - kubectx
       - helm
       - git
@@ -17,6 +18,7 @@
       - jq
       - yq
       - direnv
+      - golang-migrate
     brew_cask_dependencies:
       - iterm2
       # - zoom
@@ -80,7 +82,7 @@
       when: ansible_os_family == "Darwin"
       block:
         - name: Install OSS using homebrew
-          ansible.builtin.homebrew:
+          ansible.builtin.package:
             name: "{{ brew_dependencies }}"
             state: present
 
@@ -96,39 +98,33 @@
         #     id: "{{ mas_dependencies }}"
         #     state: present
 
-        - name: Update ~/.zshrc
-          ansible.builtin.shell: |
-            # kubectl completion
-            if ! (cat ~/.zshrc | grep 'kubectl completion zsh') &> /dev/null; then
-              echo "source <(kubectl completion zsh)";
-            else
-              echo "kubectl completion existed";
-            fi;
-
-            # direnv
-            if ! (cat ~/.zshrc | grep 'direnv hook zsh') &> /dev/null; then
-              echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc;
-            else
-              echo "direnv existed";
-            fi;
-          register: zsh_output
-          changed_when: zsh_output.stdout != "existed"
-
     - name: Install Ubuntu dependencies
       when: ansible_os_family != "Darwin"
       block:
         - name: Trust GPG key and configure APT repositories
           ansible.builtin.shell: |
             # sysdig
-            curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | sudo apt-key add -;
-            sudo curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
+            if ! (which sysdig) &> /dev/null; then
+              curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | sudo apt-key add -;
+              sudo curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
+            fi;
 
             # git
-            add-apt-repository ppa:git-core/ppa;
-            sudo apt-get update;
+            if ! (which git) &> /dev/null; then
+              add-apt-repository ppa:git-core/ppa;
+              sudo apt-get update;
+            fi;
 
             # yq
-            sudo add-apt-repository ppa:rmescandon/yq
+            if ! (which yq) &> /dev/null; then
+              sudo add-apt-repository ppa:rmescandon/yq;
+            fi;
+
+            # golang-migrate
+            if ! (which yq) &> /dev/null; then
+              curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | sudo bash;
+            fi;
+
           changed_when: false
 
         - name: Install APT dependencies
@@ -158,15 +154,6 @@
             fi;
           changed_when: false;
 
-        - name: Update ~/.bashrc
-          ansible.builtin.shell: |
-            # direnv
-            if ! (cat ~/.zshrc | grep 'direnv hook zsh') &> /dev/null; then
-              echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc;
-            else
-              echo "direnv existed";
-            fi;
-
     # Custom install tools
     - name: Custom install general tools
       block:
@@ -178,7 +165,8 @@
             else
               echo "istio existed";
             fi;
-          changed_when: istio_output.stdout != "existed"
+          register: istio_output
+          changed_when: istio_output.stdout != "istio existed"
 
         - name: Install nvm
           ansible.builtin.shell: |
@@ -191,3 +179,26 @@
           args:
             creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
           changed_when: false
+
+        - name: Install NodeJS using nvm
+          ansible.builtin.shell: |
+            . {{ ansible_env.HOME }}/.nvm/nvm.sh && nvm install "{{ nodejs_version }}" && nvm use  "{{ nodejs_version }}"
+          args:
+            executable: /bin/bash
+            chdir: "{{ ansible_env.HOME }}"
+            creates: "{{ ansible_env.HOME }}/.nvm/versions/{{ nodejs_version }}"
+          register: nodejs_output
+          changed_when: not nodejs_output.stderr is search("already installed")
+
+        - name: Install SDK Man and Java
+          ansible.builtin.import_role:
+            name: java
+
+        - name: Update shell profile
+          ansible.builtin.lineinfile:
+            path: "{{ os_var.shell_profile[ansible_os_family] }}"
+            line: "{{ item }}"
+          loop:
+            - "source <(kubectl completion {{ os_var.preferred_shell[ansible_os_family] }})"
+            - 'eval "$(direnv hook {{ os_var.preferred_shell[ansible_os_family] }})"'
+            - 'source "$HOME/.sdkman/bin/sdkman-init.sh"'

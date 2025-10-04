@@ -1,0 +1,10 @@
+nodejs_version: 20.19.5
+java_version: 17.0.7-tem
+gradle_version: 8.6
+os_var:
+  shell_profile:
+    Darwin: ~/.zshrc
+    Linux: ~/.bashrc
+  preferred_shell:
+    Darwin: zsh
+    Linux: bash
