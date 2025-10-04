@@ -4,6 +4,9 @@
   gather_facts: true
   hosts: localhost
 
+  vars_files:
+    - aliases.yml
+
   vars:
     general_dependencies:
       - kubectl
@@ -140,19 +143,15 @@
 
         - name: Install vegeta
           ansible.builtin.shell: |
-            if which vegeta > /dev/null 2>&1; then
-              echo "vegeta is already installed";
-            else
-              echo "installing vegeta..."
-              cd ~;
-              git clone https://github.com/tsenart/vegeta;
-              cd vegeta;
-              make vegeta;
-              mv vegeta ~/bin;
-              cd ~;
-              rm -rf vegeta;
-            fi;
-          changed_when: false;
+            cd ~;
+            git clone https://github.com/tsenart/vegeta;
+            cd vegeta;
+            make vegeta;
+            mv vegeta ~/bin;
+            cd ~;
+            rm -rf vegeta;
+          args:
+            creates: /bin/vegeta
 
     # Custom install tools
     - name: Custom install general tools
@@ -178,7 +177,6 @@
             fi;
           args:
             creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
-          changed_when: false
 
         - name: Install NodeJS using nvm
           ansible.builtin.shell: |
@@ -186,9 +184,7 @@
           args:
             executable: /bin/bash
             chdir: "{{ ansible_env.HOME }}"
-            creates: "{{ ansible_env.HOME }}/.nvm/versions/{{ nodejs_version }}"
-          register: nodejs_output
-          changed_when: not nodejs_output.stderr is search("already installed")
+            creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}"
 
         - name: Install SDK Man and Java
           ansible.builtin.import_role:
@@ -207,31 +203,4 @@
           ansible.builtin.lineinfile:
             path: "{{ os_var.shell_profile[ansible_os_family] }}"
             line: "{{ item }}"
-          loop:
-            - alias grep='grep --color=auto'
-            - alias ll='ls -al'
-            - alias dcp='docker-compose'
-            - alias ter='terraform'
-            - alias pwsleep='pmset sleepnow'
-            - alias mks='minikube'
-            - alias k='kubectl'
-            - alias mergemain='git fetch origin main:main && git merge main'
-            - alias greset='git reset --hard'
-            - alias gundo='git reset HEAD~'
-            - alias gcurr="git branch | grep '*'"
-            - alias gmain='git checkout main && git pull'
-            - alias ap='ansible-playbook'
-            - alias gitcleanbranches='git branch | xargs -I % echo "git push -d % ; git branch -D %" | zsh'
-            - alias wk='watch kubectl'
-            - alias gitgrep='git branch | grep '
-            - alias py='python3'
-            - alias pip='pip3'
-            - alias g='gcloud'
-            - alias kus='kustomize'
-            - alias amendforce='git commit --amend --no-edit && git push --force'
-            - alias amen0edit='git commit --amend --no-edit'
-            - alias docker='/Applications/Rancher\ Desktop.app/Contents/Resources/resources/darwin/bin/docker'
-            - alias stopallcontainer='docker ps --format json | jq .ID | xargs -I % docker stop %'
-            - alias vpnreset='sh /Users/Tho_Tran/Desktop/vpn-reset.sh';
-            - export yaml='--dry-run=client -oyaml'
-            - export now='--force --grace-period 0'
+          loop: "{{ all_aliases }}"
