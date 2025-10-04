@@ -35,6 +35,9 @@
       # - openkey
       # - microsoft-edge
       # - proxyman
+      # - visualvm
+      # - visual-studio-code
+      # - intellij-idea-ce
     brew_dependencies:
       - zsh-completions
       - mas
@@ -205,3 +208,18 @@
             path: "{{ os_var.shell_profile[ansible_distribution] }}"
             line: "{{ item }}"
           loop: "{{ all_aliases }}"
+
+        - name: Customize vi editor
+          ansible.builtin.blockinfile:
+            path: ~/.vimrc
+            create: true
+            marker: '" {mark} ANSIBLE MANAGED BLOCK (VIM SETTINGS)' #using " because it's comment in vi
+            block: |
+              set autoindent
+              set expandtab
+              set tabstop=2
+              set shiftwidth=2
+              set ic
+              set nu
+              syntax on
+              filetype on
