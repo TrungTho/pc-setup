@@ -202,3 +202,36 @@
             - "source <(kubectl completion {{ os_var.preferred_shell[ansible_os_family] }})"
             - 'eval "$(direnv hook {{ os_var.preferred_shell[ansible_os_family] }})"'
             - 'source "$HOME/.sdkman/bin/sdkman-init.sh"'
+
+        - name: Ensure alias
+          ansible.builtin.lineinfile:
+            path: "{{ os_var.shell_profile[ansible_os_family] }}"
+            line: "{{ item }}"
+          loop:
+            - alias grep='grep --color=auto'
+            - alias ll='ls -al'
+            - alias dcp='docker-compose'
+            - alias ter='terraform'
+            - alias pwsleep='pmset sleepnow'
+            - alias mks='minikube'
+            - alias k='kubectl'
+            - alias mergemain='git fetch origin main:main && git merge main'
+            - alias greset='git reset --hard'
+            - alias gundo='git reset HEAD~'
+            - alias gcurr="git branch | grep '*'"
+            - alias gmain='git checkout main && git pull'
+            - alias ap='ansible-playbook'
+            - alias gitcleanbranches='git branch | xargs -I % echo "git push -d % ; git branch -D %" | zsh'
+            - alias wk='watch kubectl'
+            - alias gitgrep='git branch | grep '
+            - alias py='python3'
+            - alias pip='pip3'
+            - alias g='gcloud'
+            - alias kus='kustomize'
+            - alias amendforce='git commit --amend --no-edit && git push --force'
+            - alias amen0edit='git commit --amend --no-edit'
+            - alias docker='/Applications/Rancher\ Desktop.app/Contents/Resources/resources/darwin/bin/docker'
+            - alias stopallcontainer='docker ps --format json | jq .ID | xargs -I % docker stop %'
+            - alias vpnreset='sh /Users/Tho_Tran/Desktop/vpn-reset.sh';
+            - export yaml='--dry-run=client -oyaml'
+            - export now='--force --grace-period 0'
