@@ -70,11 +70,12 @@
   tasks:
     - name: OS details
       ansible.builtin.debug:
-        msg: "{{ ansible_os_family }}"
+        msg: "{{ ansible_distribution }}"
 
     - name: Exit unsupported OS
       ansible.builtin.meta: end_host
-      when: ansible_os_family == "Windows"
+      when:
+        - ansible_distribution != "MacOSX"
 
     - name: Install general dependencies
       ansible.builtin.package:
@@ -82,7 +83,7 @@
         state: present
 
     - name: Install MacOS dependencies
-      when: ansible_os_family == "Darwin"
+      when: ansible_distribution == "MacOSX"
       block:
         - name: Install OSS using homebrew
           ansible.builtin.package:
@@ -102,7 +103,7 @@
         #     state: present
 
     - name: Install Ubuntu dependencies
-      when: ansible_os_family != "Darwin"
+      when: ansible_distribution == "Ubuntu"
       block:
         - name: Trust GPG key and configure APT repositories
           ansible.builtin.shell: |
@@ -192,15 +193,15 @@
 
         - name: Update shell profile
           ansible.builtin.lineinfile:
-            path: "{{ os_var.shell_profile[ansible_os_family] }}"
+            path: "{{ os_var.shell_profile[ansible_distribution] }}"
             line: "{{ item }}"
           loop:
-            - "source <(kubectl completion {{ os_var.preferred_shell[ansible_os_family] }})"
-            - 'eval "$(direnv hook {{ os_var.preferred_shell[ansible_os_family] }})"'
+            - "source <(kubectl completion {{ os_var.preferred_shell[ansible_distribution] }})"
+            - 'eval "$(direnv hook {{ os_var.preferred_shell[ansible_distribution] }})"'
             - 'source "$HOME/.sdkman/bin/sdkman-init.sh"'
 
         - name: Ensure alias
           ansible.builtin.lineinfile:
-            path: "{{ os_var.shell_profile[ansible_os_family] }}"
+            path: "{{ os_var.shell_profile[ansible_distribution] }}"
             line: "{{ item }}"
           loop: "{{ all_aliases }}"
