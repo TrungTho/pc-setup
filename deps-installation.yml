@@ -6,6 +6,8 @@
 
   vars_files:
     - aliases.yml
+    - mas.yml
+    - brew-cask.yml
 
   vars:
     general_dependencies:
@@ -22,22 +24,9 @@
       - yq
       - direnv
       - golang-migrate
-    brew_cask_dependencies:
-      - iterm2
-      # - zoom
-      # - google-chrome
-      # - aerial
-      # - notion
-      # - postman
-      # - docker
-      # - dbeaver-community
-      # - keka
-      # - openkey
-      # - microsoft-edge
-      # - proxyman
-      # - visualvm
-      # - visual-studio-code
-      # - intellij-idea-ce
+      - ngrok
+      - zip
+      - unzip
     brew_dependencies:
       - zsh-completions
       - mas
@@ -48,14 +37,6 @@
       - pstree
       - zig
       - go
-    mas_dependencies:
-      - 1216253186 # Apnea
-      - 595191960 # CopyClip
-      - 1096128050 # PomoDone
-      - 6461776692 # Rad timer
-      - 1039633667 # Irvue
-      - 1178074963 # Tayasui Sketches
-      - 1476545828 # MasDroid
     apt_dependencies:
       - apt-transport-https
       - ca-certificates
@@ -69,6 +50,7 @@
       - dbeaver-ce
       - opentofu
       - zig
+      - aws-cli
 
   tasks:
     - name: OS details
@@ -93,12 +75,12 @@
             name: "{{ brew_dependencies }}"
             state: present
 
-        # - name: Install tools using homebrew_cask
-        #   community.general.homebrew_cask:
-        #     name: "{{ brew_cask_dependencies }}"
-        #     state: present
-        #     accept_external_apps: true
-        #     install_options: "debug"
+        - name: Install tools using homebrew_cask
+          community.general.homebrew_cask:
+            name: "{{ brew_cask_dependencies }}"
+            state: present
+            accept_external_apps: true
+            install_options: "debug"
 
         # - name: Install applications from AppStore using mas
         #   community.general.mas:
@@ -130,6 +112,14 @@
             # golang-migrate
             if ! (which yq) &> /dev/null; then
               curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | sudo bash;
+            fi;
+
+            #ngrok
+            if ! (which ngrok) &> /dev/null; then
+              curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+              | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+              && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+              | sudo tee /etc/apt/sources.list.d/ngrok.list
             fi;
 
           changed_when: false
@@ -193,6 +183,10 @@
         - name: Install SDK Man and Java
           ansible.builtin.import_role:
             name: java
+
+        - name: Install AWS CLI
+          ansible.builtin.import_role:
+            name: aws-cli
 
         - name: Update shell profile
           ansible.builtin.lineinfile:

@@ -1,10 +1,10 @@
 .PHONY: run
 run:
-	ansible-playbook -i inventories/raw.yml deps-installation.yml
+	ansible-playbook -v -i inventories/raw.yml deps-installation.yml
 
 .PHONY: debug
 debug:
-	ansible-playbook -vvv deps-installation.yml
+	ansible-playbook -vvv -i inventories/raw.yml deps-installation.yml
 
 .PHONY: fmt
 fmt: 

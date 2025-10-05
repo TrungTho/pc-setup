@@ -1,0 +1,17 @@
+brew_cask_dependencies:
+  - iterm2
+  # - zoom
+  # - google-chrome
+  # - aerial
+  # - notion
+  # - postman
+  # - docker
+  # - dbeaver-community
+  # - keka
+  # - openkey
+  # - microsoft-edge
+  # - proxyman
+  # - visualvm
+  # - visual-studio-code
+  # - intellij-idea-ce
+  # - powershell
