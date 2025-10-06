@@ -27,6 +27,7 @@
       - ngrok
       - zip
       - unzip
+      - trivy
     brew_dependencies:
       - zsh-completions
       - mas
@@ -94,33 +95,37 @@
           ansible.builtin.shell: |
             # sysdig
             if ! (which sysdig) &> /dev/null; then
-              curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | sudo apt-key add -;
-              sudo curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
+              curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | apt-key add -;
+              curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
             fi;
 
             # git
             if ! (which git) &> /dev/null; then
               add-apt-repository ppa:git-core/ppa;
-              sudo apt-get update;
+              apt-get update;
             fi;
 
             # yq
             if ! (which yq) &> /dev/null; then
-              sudo add-apt-repository ppa:rmescandon/yq;
+              add-apt-repository ppa:rmescandon/yq;
             fi;
 
             # golang-migrate
             if ! (which yq) &> /dev/null; then
-              curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | sudo bash;
+              curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | bash;
             fi;
 
-            #ngrok
+            # ngrok
             if ! (which ngrok) &> /dev/null; then
               curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-              | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+              | tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
               && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-              | sudo tee /etc/apt/sources.list.d/ngrok.list
+              | tee /etc/apt/sources.list.d/ngrok.list
             fi;
+
+            # trivy
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+            echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
 
           changed_when: false
 
