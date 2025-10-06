@@ -11,6 +11,7 @@
 
   vars:
     general_dependencies:
+      - ca-certificates
       - kubectl
       - bash-completion
       - kubectx
@@ -28,6 +29,7 @@
       - zip
       - unzip
       - trivy
+      - yarn
     brew_dependencies:
       - zsh-completions
       - mas
@@ -38,20 +40,29 @@
       - pstree
       - zig
       - go
+      - gcc
+      - ansible-lint
+      - azure-cli
+      - argocd
     apt_dependencies:
+      - gnupg
       - apt-transport-https
+      - lsb-release
       - ca-certificates
       - curl
       - gnupg
       - protobuf-compiler
       - psmisc
       - golang-go
+      - build-essential
+
     snap_dependencies:
       - k9s
       - dbeaver-ce
       - opentofu
       - zig
       - aws-cli
+      - durrendal-ansible-lint
 
   tasks:
     - name: OS details
@@ -151,6 +162,12 @@
             rm -rf vegeta;
           args:
             creates: /bin/vegeta
+
+        - name: Install Azure CLI
+          ansible.builtin.shell: |
+            curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          args:
+            creates: hihi
 
     # Custom install tools
     - name: Custom install general tools
