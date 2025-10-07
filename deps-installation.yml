@@ -167,7 +167,7 @@
           ansible.builtin.shell: |
             curl -sL https://aka.ms/InstallAzureCLIDeb | bash
           args:
-            creates: hihi
+            creates: hihi #todo replace with the correct path
 
     # Custom install tools
     - name: Custom install general tools
@@ -230,12 +230,4 @@
             path: ~/.vimrc
             create: true
             marker: '" {mark} ANSIBLE MANAGED BLOCK (VIM SETTINGS)' #using " because it's comment in vi
-            block: |
-              set autoindent
-              set expandtab
-              set tabstop=2
-              set shiftwidth=2
-              set ic
-              set nu
-              syntax on
-              filetype on
+            block: "{{ lookup('ansible.builtin.file', 'files/vi.cfg') }}"
