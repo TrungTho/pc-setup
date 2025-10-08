@@ -1,6 +1,6 @@
 ---
 # This playbook doesn't support window machine
-- name: Configuring MacOS machine
+- name: Configuring machine
   gather_facts: true
   hosts: localhost
 
@@ -12,26 +12,26 @@
   vars:
     general_dependencies:
       - ca-certificates
-      - kubectl
       - bash-completion
-      - kubectx
-      - helm
       - git
       - podman
-      - liquibase
-      - sqlc
       - sysdig
       - jq
-      - yq
       - direnv
-      - golang-migrate
-      - ngrok
       - zip
       - unzip
-      - trivy
       - yarn
     brew_dependencies:
       - zsh-completions
+      - kubectl
+      - kubectx
+      - helm
+      - liquibase
+      - sqlc
+      - golang-migrate
+      - ngrok
+      - trivy
+      - yq
       - mas
       - derailed/k9s/k9s
       - vegeta
@@ -51,12 +51,21 @@
       - ca-certificates
       - curl
       - gnupg
+      - golang-migrate
       - protobuf-compiler
       - psmisc
       - golang-go
       - build-essential
 
     snap_dependencies:
+      - kubectl
+      - kubectx
+      - helm
+      - liquibase
+      - sqlc
+      - ngrok
+      - trivy
+      - yq
       - k9s
       - dbeaver-ce
       - opentofu
@@ -73,11 +82,13 @@
       ansible.builtin.meta: end_host
       when:
         - ansible_distribution != "MacOSX"
+        - ansible_distribution != "Ubuntu"
 
     - name: Install general dependencies
       ansible.builtin.package:
         name: "{{ general_dependencies }}"
         state: present
+      become: "{{ ansible_os_family != 'Darwin' }}"
 
     - name: Install MacOS dependencies
       when: ansible_distribution == "MacOSX"
@@ -101,15 +112,10 @@
 
     - name: Install Ubuntu dependencies
       when: ansible_distribution == "Ubuntu"
+      become: true
       block:
         - name: Trust GPG key and configure APT repositories
           ansible.builtin.shell: |
-            # sysdig
-            if ! (which sysdig) &> /dev/null; then
-              curl -s https://download.sysdig.com/DRAIOS-GPG-KEY.public | apt-key add -;
-              curl -s -o /etc/apt/sources.list.d/draios.list https://download.sysdig.com/stable/deb/draios.list;
-            fi;
-
             # git
             if ! (which git) &> /dev/null; then
               add-apt-repository ppa:git-core/ppa;
@@ -137,6 +143,10 @@
             # trivy
             wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
             echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+
+            # golang-migrate
+            curl -L https://packagecloud.io/golang-migrate/migrate/gpgkey | apt-key add -
+            echo "deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/migrate.list
 
           changed_when: false
 
