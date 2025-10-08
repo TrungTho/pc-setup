@@ -25,13 +25,13 @@ apply:
 .PHONY: stop
 stop:
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
-	aws ec2 stop-instances --instance-ids $$INSTANCE_ID
+	aws ec2 stop-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
 .PHONY: start
 start:
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
-	aws ec2 start-instances --instance-ids $$INSTANCE_ID; \
-	aws ec2 wait instance-running --instance-ids $$INSTANCE_ID
+	aws ec2 start-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID; \
+	aws ec2 wait instance-running --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
 .PHONY: ssh
 ssh:
