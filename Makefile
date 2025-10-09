@@ -28,7 +28,7 @@ stop:
 	aws ec2 stop-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
 .PHONY: start
-start:
+start: login
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 start-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID; \
 	aws ec2 wait instance-running --profile platform-sandbox --instance-ids $$INSTANCE_ID
@@ -42,4 +42,12 @@ ssh:
 
 .PHONY: login
 login:
-	sh aws-sso.sh 465836752403 AVM-AdministratorAccess-d97965
+	@ # The '|| true' ensures 'make' doesn't stop if the AWS command fails.
+	@AWS_CHECK=$$(aws sts get-caller-identity --profile platform-sandbox 2>&1 || true); \
+	\
+	if echo "$$AWS_CHECK" | grep -q "profile has expired"; then \
+		echo "Credentials expired. Running SSO login..."; \
+		sh aws-sso.sh 465836752403 AVM-AdministratorAccess-d97965; \
+	else \
+		echo "No expiration detected. Skipping login."; \
+	fi
