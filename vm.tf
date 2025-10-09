@@ -23,7 +23,8 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region  = var.region
+  profile = "platform-sandbox"
 }
 
 # --- 2. Variables ---
@@ -178,7 +179,7 @@ resource "aws_eip" "static_ip" {
 # --- 9. EC2 Instance Creation ---
 resource "aws_instance" "public_instance" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  instance_type = "t3.small"
   subnet_id     = aws_subnet.public.id
 
   # Use the GENERATED key pair name
