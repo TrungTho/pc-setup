@@ -22,13 +22,13 @@ plan: validate
 apply:
 	tofu apply -auto-approve;
 
-.PHONY: stop
-stop:
+.PHONY: stop-vm
+stop-vm:
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 stop-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
-.PHONY: start
-start: login
+.PHONY: start-vm
+start-vm: login
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 start-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID; \
 	aws ec2 wait instance-running --profile platform-sandbox --instance-ids $$INSTANCE_ID

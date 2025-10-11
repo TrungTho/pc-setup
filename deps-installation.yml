@@ -2,7 +2,8 @@
 # This playbook doesn't support window machine
 - name: Configuring machine
   gather_facts: true
-  hosts: localhost
+  become: "{{ is_privileged }}" # for linux machine we will need this to be true
+  hosts: remote
 
   vars_files:
     - aliases.yml
@@ -11,16 +12,17 @@
 
   vars:
     general_dependencies:
-      - ca-certificates
-      - bash-completion
-      - git
-      - podman
-      - sysdig
-      - jq
-      - direnv
-      - zip
-      - unzip
-      - yarn
+      # - ca-certificates
+      # - bash-completion
+      # - git
+      # - podman
+      # - sysdig
+      # - jq
+      # - direnv
+      # - zip
+      # - unzip
+      # - yarn
+      # - ansible
     brew_dependencies:
       - zsh-completions
       - kubectl
@@ -45,33 +47,32 @@
       - azure-cli
       - argocd
     apt_dependencies:
-      - gnupg
-      - apt-transport-https
-      - lsb-release
-      - ca-certificates
-      - curl
-      - gnupg
-      - golang-migrate
-      - protobuf-compiler
-      - psmisc
-      - golang-go
-      - build-essential
+      - name: gnupg
+      # - name: apt-transport-https
+      # - name: lsb-release
+      # - name: ca-certificates
+      # - name: build-essential
+      # - name: protobuf-compiler
+      # - name: psmisc
+      # - name: golang-go
+      # - name: migrate
+      #   apt_key: https://packagecloud.io/golang-migrate/migrate/gpgkey
+      #   apt_repo: deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ {{ ansible_distribution_release }} main
+      # - name: yq
+      #   apt_repo: ppa:rmescandon/yq
 
     snap_dependencies:
       - kubectl
-      - kubectx
-      - helm
-      - liquibase
-      - sqlc
-      - ngrok
-      - trivy
-      - yq
-      - k9s
-      - dbeaver-ce
-      - opentofu
-      - zig
-      - aws-cli
-      - durrendal-ansible-lint
+      # - kubectx
+      # - helm
+      # - liquibase
+      # - sqlc
+      # - k9s
+      # - ngrok
+      # - trivy
+      # - opentofu
+      # - aws-cli
+      # - durrendal-ansible-lint
 
   tasks:
     - name: OS details
@@ -85,10 +86,16 @@
         - ansible_distribution != "Ubuntu"
 
     - name: Install general dependencies
-      ansible.builtin.package:
-        name: "{{ general_dependencies }}"
-        state: present
-      become: "{{ ansible_os_family != 'Darwin' }}"
+      block:
+        - name: Update apt packages
+          when: ansible_distribution == "Ubuntu"
+          ansible.builtin.apt:
+            update_cache: true
+
+        - name: Packages installation
+          ansible.builtin.package:
+            name: "{{ general_dependencies }}"
+            state: present
 
     - name: Install MacOS dependencies
       when: ansible_distribution == "MacOSX"
@@ -112,73 +119,73 @@
 
     - name: Install Ubuntu dependencies
       when: ansible_distribution == "Ubuntu"
-      become: true
       block:
-        - name: Trust GPG key and configure APT repositories
-          ansible.builtin.shell: |
-            # git
-            if ! (which git) &> /dev/null; then
-              add-apt-repository ppa:git-core/ppa;
-              apt-get update;
-            fi;
-
-            # yq
-            if ! (which yq) &> /dev/null; then
-              add-apt-repository ppa:rmescandon/yq;
-            fi;
-
-            # golang-migrate
-            if ! (which yq) &> /dev/null; then
-              curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | bash;
-            fi;
-
-            # ngrok
-            if ! (which ngrok) &> /dev/null; then
-              curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-              | tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-              && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-              | tee /etc/apt/sources.list.d/ngrok.list
-            fi;
-
-            # trivy
-            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-            echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-
-            # golang-migrate
-            curl -L https://packagecloud.io/golang-migrate/migrate/gpgkey | apt-key add -
-            echo "deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/migrate.list
-
-          changed_when: false
-
         - name: Install APT dependencies
-          ansible.builtin.apt:
-            update_cache: true
-            name: "{{ apt_dependencies }}"
+          block:
+            - name: Add GPG Key
+              ansible.builtin.apt_key:
+                url: "{{ item.apt_key }}"
+                state: present
+              when: item.apt_key is defined
+              loop: "{{ apt_dependencies | selectattr('apt_key', 'defined') | list }}"
+
+            - name: Add APT Repository
+              ansible.builtin.apt_repository:
+                repo: "{{ item.apt_repo }}"
+                state: present
+                filename: "{{ item.name }}"
+              when: item.apt_repo is defined
+              loop: "{{ apt_dependencies | selectattr('apt_repo', 'defined') | list }}"
+
+            - name: APT update
+              ansible.builtin.apt:
+                update_cache: true
+
+            - name: APT install
+              ansible.builtin.apt:
+                name: "{{ item.name }}"
+              loop: "{{ apt_dependencies }}"
 
         - name: Install snap dependencies
           community.general.snap:
-            name: "{{ snap_dependencies }}"
-            classic: yes
+            name: "{{ item }}"
+            classic: yes # https://snapcraft.io/docs/snap-confinement
+            dangerous: false
             channel: stable
+          loop: "{{ snap_dependencies }}"
+
+        - name: Create symlink # some snap package bin are not in /snap/bin by default
+          ansible.builtin.file:
+            src: "{{ item.src }}"
+            dest: "/snap/bin/{{ item.name }}"
+            state: link
+          loop:
+            - name: k9s
+              src: /snap/k9s/current/bin/k9s
+            - name: ansible-lint
+              src: /snap/durrendal-ansible-lint/current/bin/ansible-lint
 
         - name: Install vegeta
           ansible.builtin.shell: |
             cd ~;
-            git clone https://github.com/tsenart/vegeta;
-            cd vegeta;
-            make vegeta;
-            mv vegeta ~/bin;
-            cd ~;
-            rm -rf vegeta;
+            VEGETA_VERSION=$(curl -s "https://api.github.com/repos/tsenart/vegeta/releases/latest" | grep -Po '"tag_name": "v\K[0-9.]+')
+            curl -Lo vegeta.tar.gz "https://github.com/tsenart/vegeta/releases/latest/download/vegeta_${VEGETA_VERSION}_linux_amd64.tar.gz"
+            mkdir vegeta-temp
+            tar xf vegeta.tar.gz -C vegeta-temp
+            mv vegeta-temp/vegeta /usr/local/bin
+            rm -rf vegeta.tar.gz
+            rm -rf vegeta-temp
           args:
-            creates: /bin/vegeta
+            creates: /usr/local/bin/vegeta
 
         - name: Install Azure CLI
           ansible.builtin.shell: |
             curl -sL https://aka.ms/InstallAzureCLIDeb | bash
           args:
-            creates: hihi #todo replace with the correct path
+            creates: /usr/bin/az
 
+    - name: end_host
+      ansible.builtin.meta: end_host
     # Custom install tools
     - name: Custom install general tools
       block:
