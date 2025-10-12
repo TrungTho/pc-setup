@@ -1,0 +1,11 @@
+snap_dependencies:
+  - kubectl
+  - kubectx
+  - helm
+  - liquibase
+  - sqlc
+  - k9s
+  - ngrok
+  - trivy
+  - opentofu
+  - durrendal-ansible-lint

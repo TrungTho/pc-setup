@@ -1,0 +1,14 @@
+apt_dependencies:
+  - name: gnupg
+  - name: apt-transport-https
+  - name: lsb-release
+  - name: ca-certificates
+  - name: build-essential
+  - name: protobuf-compiler
+  - name: psmisc
+  - name: golang-go
+  - name: migrate
+    apt_key: https://packagecloud.io/golang-migrate/migrate/gpgkey
+    apt_repo: deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ {{ ansible_distribution_release }} main
+  - name: yq
+    apt_repo: ppa:rmescandon/yq
