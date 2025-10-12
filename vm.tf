@@ -192,6 +192,20 @@ resource "aws_instance" "public_instance" {
   # as we are attaching a dedicated EIP.
   associate_public_ip_address = false
 
+  root_block_device {
+    volume_size           = 20
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+
+  lifecycle {
+    ignore_changes = [
+      associate_public_ip_address,
+      # Also helpful to ignore these block attributes that often drift
+      credit_specification,
+    ]
+  }
+
   tags = {
     Name = "Public-SSH-Static-IP-Instance"
   }

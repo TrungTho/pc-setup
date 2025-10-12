@@ -23,7 +23,7 @@ apply:
 	tofu apply -auto-approve;
 
 .PHONY: stop-vm
-stop-vm:
+stop-vm: login
 	INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 stop-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
