@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	ansible-playbook -v -i inventories/raw.yml deps-installation.yml
+	ansible-playbook  -i inventories/raw.yml deps-installation.yml
 
 .PHONY: debug
 debug:

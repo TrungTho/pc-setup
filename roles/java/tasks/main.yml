@@ -1,18 +1,21 @@
 - name: Installing SDK Man
-  ansible.builtin.shell: set -o pipefail && "curl -s 'https://get.sdkman.io' | bash"
+  ansible.builtin.shell: set -o pipefail && set -o pipefail && curl -s "https://get.sdkman.io" | bash
   args:
     creates: "{{ ansible_facts.user_dir }}/.sdkman/bin/sdkman-init.sh"
+    executable: /bin/bash
 
 - name: Installing Java
   ansible.builtin.shell: |
     source "$HOME/.sdkman/bin/sdkman-init.sh" && \
     sdk install java {{ java_version }}
   args:
-    executable: /bin/zsh
+    executable: /bin/bash
   changed_when: false
 
 - name: Installing Gradle
   ansible.builtin.shell: |
     source "$HOME/.sdkman/bin/sdkman-init.sh" && \
     sdk install gradle {{ gradle_version }}
+  args:
+    executable: /bin/bash
   changed_when: false

@@ -3,7 +3,8 @@
 - name: Configuring machine
   gather_facts: true
   become: "{{ is_privileged }}" # for linux machine we will need this to be true
-  hosts: remote
+  hosts: all
+  serial: 1
 
   vars_files:
     - aliases.yml
@@ -12,17 +13,17 @@
 
   vars:
     general_dependencies:
-      # - ca-certificates
-      # - bash-completion
-      # - git
-      # - podman
-      # - sysdig
-      # - jq
-      # - direnv
-      # - zip
-      # - unzip
-      # - yarn
-      # - ansible
+      - ca-certificates
+      - bash-completion
+      - git
+      - podman
+      - sysdig
+      - jq
+      - direnv
+      - zip
+      - unzip
+      - yarn
+      - ansible
     brew_dependencies:
       - zsh-completions
       - kubectl
@@ -46,33 +47,33 @@
       - ansible-lint
       - azure-cli
       - argocd
+      - istioctl
     apt_dependencies:
       - name: gnupg
-      # - name: apt-transport-https
-      # - name: lsb-release
-      # - name: ca-certificates
-      # - name: build-essential
-      # - name: protobuf-compiler
-      # - name: psmisc
-      # - name: golang-go
-      # - name: migrate
-      #   apt_key: https://packagecloud.io/golang-migrate/migrate/gpgkey
-      #   apt_repo: deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ {{ ansible_distribution_release }} main
-      # - name: yq
-      #   apt_repo: ppa:rmescandon/yq
+      - name: apt-transport-https
+      - name: lsb-release
+      - name: ca-certificates
+      - name: build-essential
+      - name: protobuf-compiler
+      - name: psmisc
+      - name: golang-go
+      - name: migrate
+        apt_key: https://packagecloud.io/golang-migrate/migrate/gpgkey
+        apt_repo: deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ {{ ansible_distribution_release }} main
+      - name: yq
+        apt_repo: ppa:rmescandon/yq
 
     snap_dependencies:
       - kubectl
-      # - kubectx
-      # - helm
-      # - liquibase
-      # - sqlc
-      # - k9s
-      # - ngrok
-      # - trivy
-      # - opentofu
-      # - aws-cli
-      # - durrendal-ansible-lint
+      - kubectx
+      - helm
+      - liquibase
+      - sqlc
+      - k9s
+      - ngrok
+      - trivy
+      - opentofu
+      - durrendal-ansible-lint
 
   tasks:
     - name: OS details
@@ -146,6 +147,17 @@
                 name: "{{ item.name }}"
               loop: "{{ apt_dependencies }}"
 
+            - name: Install Istio
+              ansible.builtin.shell: |
+                if ! (which istioctl) &> /dev/null; then
+                  echo "installing istio";
+                  (curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH);
+                else
+                  echo "istio existed";
+                fi;
+              args:
+                creates: "{{ ansible_facts.user_dir }}/.istioctl"
+
         - name: Install snap dependencies
           community.general.snap:
             name: "{{ item }}"
@@ -184,22 +196,9 @@
           args:
             creates: /usr/bin/az
 
-    - name: end_host
-      ansible.builtin.meta: end_host
     # Custom install tools
     - name: Custom install general tools
       block:
-        - name: Install Istio
-          ansible.builtin.shell: |
-            if ! (which istioctl) &> /dev/null; then
-              echo "installing istio";
-              (curl -sL https://istio.io/downloadIstioctl | sh - && export PATH=$HOME/.istioctl/bin:$PATH);
-            else
-              echo "istio existed";
-            fi;
-          register: istio_output
-          changed_when: istio_output.stdout != "istio existed"
-
         - name: Install nvm
           ansible.builtin.shell: |
             if ! (which nvm) &> /dev/null; then
@@ -209,15 +208,15 @@
               echo "nvm existed";
             fi;
           args:
-            creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+            creates: "{{ ansible_facts.user_dir }}/.nvm/nvm.sh"
 
         - name: Install NodeJS using nvm
           ansible.builtin.shell: |
-            . {{ ansible_env.HOME }}/.nvm/nvm.sh && nvm install "{{ nodejs_version }}" && nvm use  "{{ nodejs_version }}"
+            . {{ ansible_facts.user_dir }}/.nvm/nvm.sh && nvm install "{{ nodejs_version }}" && nvm use  "{{ nodejs_version }}"
           args:
             executable: /bin/bash
-            chdir: "{{ ansible_env.HOME }}"
-            creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ nodejs_version }}"
+            chdir: "{{ ansible_facts.user_dir }}"
+            creates: "{{ ansible_facts.user_dir }}/.nvm/versions/node/v{{ nodejs_version }}"
 
         - name: Install SDK Man and Java
           ansible.builtin.import_role:
