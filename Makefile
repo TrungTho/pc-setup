@@ -15,11 +15,11 @@ validate: fmt
 	tofu validate
 
 .PHONY: plan
-plan: validate
+plan: login validate
 	tofu plan
 
 .PHONY: apply
-apply:
+apply: login
 	tofu apply -auto-approve;
 
 .PHONY: stop-vm

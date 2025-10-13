@@ -61,21 +61,21 @@ resource "local_file" "private_key" {
   file_permission = "0600"
 }
 
-# # --- 4. Data Source for latest Ubuntu AMI with SSM ---
-# data "aws_ami" "ubuntu" {
-#   most_recent = true
-#   owners      = ["099720109477"]
+# --- 4. Data Source for latest Ubuntu AMI with SSM ---
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"]
 
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-#   }
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
 
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-# }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
 
 # --- 4. Data Source for latest Windows Server 2022 Base AMI ---
 data "aws_ami" "windows_2022" {
@@ -197,7 +197,7 @@ resource "aws_eip" "static_ip" {
 
 # --- 9. EC2 Instance Creation ---
 resource "aws_instance" "public_instance" {
-  ami           = data.aws_ami.windows_2022.id
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.medium"
   subnet_id     = aws_subnet.public.id
 
@@ -212,7 +212,7 @@ resource "aws_instance" "public_instance" {
   associate_public_ip_address = false
 
   root_block_device {
-    volume_size           = 60
+    volume_size           = 20
     volume_type           = "gp3"
     delete_on_termination = true
   }
@@ -247,10 +247,10 @@ output "private_key_file" {
   value       = local_file.private_key.filename
 }
 
-output "public_key" {
-  description = "The content of the public key"
-  value       = aws_key_pair.generated_key.public_key
-}
+# output "public_key" {
+#   description = "The content of the public key"
+#   value       = aws_key_pair.generated_key.public_key
+# }
 
 output "instance_id" {
   description = "The id of the created instance"

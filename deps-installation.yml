@@ -58,38 +58,6 @@
         #     id: "{{ mas_dependencies }}"
         #     state: present
 
-        - name: ohmyzsh
-          block:
-            - name: Install ohmyzsh
-              ansible.builtin.git:
-                repo: "https://github.com/ohmyzsh/ohmyzsh.git"
-                dest: "~/.oh-my-zsh"
-                version: master
-
-            - name: Install zsh-autosuggestions
-              ansible.builtin.git:
-                repo: "https://github.com/zsh-users/zsh-autosuggestions"
-                dest: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-                version: master
-
-            - name: Powerlevel10k installation
-              ansible.builtin.git:
-                repo: "https://github.com/romkatv/powerlevel10k.git"
-                dest: "~/.oh-my-zsh/custom/themes/powerlevel10k"
-                version: master
-
-            - name: Ensure plugin
-              ansible.builtin.lineinfile:
-                path: "{{ os_var.shell_profile[ansible_distribution] }}"
-                regexp: "^plugins="
-                line: plugins=(git zsh-autosuggestions docker podman iterm2 nvm safe-paste ssh ssh-agent opentofu thefuck)
-
-            - name: Ensure theme
-              ansible.builtin.lineinfile:
-                path: "{{ os_var.shell_profile[ansible_distribution] }}"
-                regexp: "^ZSH_THEME="
-                line: ZSH_THEME="simple"
-
     - name: Install Ubuntu dependencies
       when: ansible_distribution == "Ubuntu"
       block:
@@ -168,6 +136,9 @@
           args:
             creates: /usr/bin/az
 
+        - name: Set zsh as the default shell
+          ansible.builtin.command: chsh -s $(which zsh)
+
     # Custom install tools
     - name: Custom install general tools
       block:
@@ -219,3 +190,29 @@
             create: true
             marker: '" {mark} ANSIBLE MANAGED BLOCK (VIM SETTINGS)' #using " because it's comment in vi
             block: "{{ lookup('ansible.builtin.file', 'files/vi.cfg') }}"
+
+        - name: ohmyzsh
+          block:
+            - name: Install ohmyzsh
+              ansible.builtin.git:
+                repo: "https://github.com/ohmyzsh/ohmyzsh.git"
+                dest: "~/.oh-my-zsh"
+                version: master
+
+            - name: Install zsh-autosuggestions
+              ansible.builtin.git:
+                repo: "https://github.com/zsh-users/zsh-autosuggestions"
+                dest: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+                version: master
+
+            - name: Ensure plugin
+              ansible.builtin.lineinfile:
+                path: "{{ os_var.shell_profile[ansible_distribution] }}"
+                regexp: "^plugins="
+                line: plugins=(git zsh-autosuggestions docker podman iterm2 nvm safe-paste ssh ssh-agent opentofu thefuck)
+
+            - name: Ensure theme
+              ansible.builtin.lineinfile:
+                path: "{{ os_var.shell_profile[ansible_distribution] }}"
+                regexp: "^ZSH_THEME="
+                line: ZSH_THEME="simple"

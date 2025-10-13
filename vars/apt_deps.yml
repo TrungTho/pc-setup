@@ -1,5 +1,6 @@
 apt_dependencies:
   - name: gnupg
+  - name: zsh
   - name: apt-transport-https
   - name: lsb-release
   - name: ca-certificates
