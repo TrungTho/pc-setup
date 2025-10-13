@@ -247,6 +247,11 @@ output "private_key_file" {
   value       = local_file.private_key.filename
 }
 
+output "public_key" {
+  description = "The content of the public key"
+  value       = aws_key_pair.generated_key.public_key
+}
+
 output "instance_id" {
   description = "The id of the created instance"
   value       = aws_instance.public_instance.id
