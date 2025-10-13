@@ -61,14 +61,33 @@ resource "local_file" "private_key" {
   file_permission = "0600"
 }
 
-# --- 4. Data Source for latest Ubuntu AMI with SSM ---
-data "aws_ami" "ubuntu" {
+# # --- 4. Data Source for latest Ubuntu AMI with SSM ---
+# data "aws_ami" "ubuntu" {
+#   most_recent = true
+#   owners      = ["099720109477"]
+
+#   filter {
+#     name   = "name"
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+#   }
+
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+# }
+
+# --- 4. Data Source for latest Windows Server 2022 Base AMI ---
+data "aws_ami" "windows_2022" {
   most_recent = true
-  owners      = ["099720109477"]
+  # Official AWS owner ID for Windows AMIs in most regions (Amazon)
+  owners = ["801119661308"]
 
   filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    name = "name"
+    # This pattern matches the standard, non-container, full Desktop Experience
+    # Windows Server 2022 image.
+    values = ["Windows_Server-2022-English-Full-Base-*"]
   }
 
   filter {
@@ -178,8 +197,8 @@ resource "aws_eip" "static_ip" {
 
 # --- 9. EC2 Instance Creation ---
 resource "aws_instance" "public_instance" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.small"
+  ami           = data.aws_ami.windows_2022.id
+  instance_type = "t3.medium"
   subnet_id     = aws_subnet.public.id
 
   # Use the GENERATED key pair name
@@ -193,7 +212,7 @@ resource "aws_instance" "public_instance" {
   associate_public_ip_address = false
 
   root_block_device {
-    volume_size           = 20
+    volume_size           = 60
     volume_type           = "gp3"
     delete_on_termination = true
   }
