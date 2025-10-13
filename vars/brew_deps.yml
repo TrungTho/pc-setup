@@ -1,5 +1,4 @@
 brew_dependencies:
-  - zsh-completions
   - kubectl
   - kubectx
   - helm

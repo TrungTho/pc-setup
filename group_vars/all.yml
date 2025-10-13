@@ -4,7 +4,7 @@ gradle_version: 8.6
 os_var:
   shell_profile:
     MacOSX: ~/.zshrc
-    Ubuntu: ~/.bashrc
+    Ubuntu: ~/.shrc
   preferred_shell:
     MacOSX: zsh
-    Ubuntu: bash
+    Ubuntu: zsh

@@ -1,6 +1,7 @@
 general_dependencies:
   - ca-certificates
   - bash-completion
+  - zsh-completions
   - git
   - podman
   - sysdig
