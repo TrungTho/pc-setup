@@ -137,7 +137,7 @@
             creates: /usr/bin/az
 
         - name: Set zsh as the default shell
-          ansible.builtin.command: chsh -s $(which zsh)
+          ansible.builtin.command: "chsh -s /usr/bin/zsh"
 
     # Custom install tools
     - name: Custom install general tools
