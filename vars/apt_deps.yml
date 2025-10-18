@@ -1,4 +1,5 @@
 apt_dependencies:
+  - name: snapd
   - name: gnupg
   - name: zsh
   - name: apt-transport-https
