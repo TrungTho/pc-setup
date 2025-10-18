@@ -9,3 +9,12 @@ snap_dependencies:
   - trivy
   - opentofu
   - durrendal-ansible-lint
+
+  # GUI
+  # - postman
+  # - zoom-client
+  # - dbeaver-ce
+  # - code
+  # - intellij-idea-community
+  # - intellij-idea-ultimate
+  # - vlc

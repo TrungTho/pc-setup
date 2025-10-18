@@ -2,6 +2,7 @@ apt_dependencies:
   - name: snapd
   - name: gnupg
   - name: zsh
+  - name: podman
   - name: apt-transport-https
   - name: lsb-release
   - name: ca-certificates
@@ -14,3 +15,11 @@ apt_dependencies:
     apt_repo: deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ {{ ansible_distribution_release }} main
   - name: yq
     apt_repo: ppa:rmescandon/yq
+
+  # - name: flameshot #GUI
+  # - name: gnome-tweaks #GUI
+  # - name: google-chrome-stable
+  #   apt_key: https://dl.google.com/linux/linux_signing_key.pub
+  #   apt_repo: deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
+  # - name: ulauncher #GUI
+  #   apt_repo: ppa:agornostal/ulauncher
