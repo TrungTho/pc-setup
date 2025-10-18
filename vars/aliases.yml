@@ -27,4 +27,4 @@ all_aliases:
   - export yaml='--dry-run=client -oyaml'
   - export now='--force --grace-period 0'
   - complete -o default -F __start_kubectl k
-  - export PAGER=""
+  - export PAGER="less -F -X"

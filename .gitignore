@@ -1,6 +1,6 @@
 .envrc
-.terraform/*
-.terraform.*
-terraform.*
+clouds/.terraform/*
+clouds/.terraform.*
+clouds/terraform.*
 *.pem
 .env

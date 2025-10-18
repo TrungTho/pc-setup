@@ -209,7 +209,7 @@
               ansible.builtin.lineinfile:
                 path: "{{ os_var.shell_profile[ansible_distribution] }}"
                 regexp: "^plugins="
-                line: plugins=(git zsh-autosuggestions docker podman iterm2 nvm safe-paste ssh ssh-agent opentofu thefuck)
+                line: plugins=(git aws zsh-autosuggestions docker podman iterm2 nvm safe-paste ssh ssh-agent opentofu thefuck)
 
             - name: Ensure theme
               ansible.builtin.lineinfile:

@@ -8,37 +8,36 @@ debug:
 
 .PHONY: fmt
 fmt: 
-	tofu fmt --recursive
+	tofu -chdir=./clouds fmt --recursive
 
 .PHONY: validate
 validate: fmt
-	tofu validate
+	tofu -chdir=./clouds validate
 
 .PHONY: plan
 plan: login validate
-	tofu plan
+	tofu -chdir=./clouds plan;
 
 .PHONY: apply
 apply: login
-	tofu apply -auto-approve;
+	tofu -chdir=./clouds apply -auto-approve;
 
 .PHONY: stop-vm
 stop-vm: login
-	INSTANCE_ID=$$(tofu output -raw instance_id); \
+	cd ./clouds && INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 stop-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
 .PHONY: start-vm
 start-vm: login
-	INSTANCE_ID=$$(tofu output -raw instance_id); \
+	cd ./clouds && INSTANCE_ID=$$(tofu output -raw instance_id); \
 	aws ec2 start-instances --profile platform-sandbox --instance-ids $$INSTANCE_ID; \
 	aws ec2 wait instance-running --profile platform-sandbox --instance-ids $$INSTANCE_ID
 
 .PHONY: ssh
 ssh:
-	PRIVATE_KEY_NAME=$$(tofu output -raw private_key_file); \
-	PUBLIC_IP=$$(tofu output -raw instance_public_ip); \
-	ssh -i $$PRIVATE_KEY_NAME ubuntu@$$PUBLIC_IP
-	ssh -i $(PRIVATE_KEY_NAME) ubuntu@$(PUBLIC_IP)
+	PRIVATE_KEY_NAME=$$(tofu -chdir=./clouds output -raw private_key_file); \
+	PUBLIC_IP=$$(tofu -chdir=./clouds output -raw instance_public_ip); \
+	cd ./clouds && ssh -i $$PRIVATE_KEY_NAME ubuntu@$$PUBLIC_IP
 
 .PHONY: login
 login:
@@ -47,7 +46,7 @@ login:
 	\
 	if echo "$$AWS_CHECK" | grep -q "profile has expired"; then \
 		echo "Credentials expired. Running SSO login..."; \
-		sh aws-sso.sh 465836752403 AVM-AdministratorAccess-d97965; \
+		sh clouds/aws-sso.sh 465836752403 AVM-AdministratorAccess-d97965; \
 	else \
 		echo "No expiration detected. Skipping login."; \
 	fi
