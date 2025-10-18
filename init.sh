@@ -15,15 +15,21 @@ then
     fi;
 else
     uname;
+    echo "=====User check=====";
+    if [ "$EUID" -ne 0 ]; then
+      echo "root user is required to run the script";
+      exit 1;
+    fi;
+
     echo "=====Ansible check=====";
     if which ansible > /dev/null 2>&1; then
       echo "Ansible already existed";
     else
       echo "Installing Ansible...";
-      sudo apt update;
-      sudo apt install software-properties-common -y;
-      sudo add-apt-repository --yes --update ppa:ansible/ansible;
-      sudo apt install ansible --yes;
+      apt update;
+      apt install software-properties-common -y;
+      add-apt-repository --yes --update ppa:ansible/ansible;
+      apt install ansible --yes;
     fi;
 
     echo "=====Makefile check=====";
@@ -31,7 +37,7 @@ else
       echo "Makefile already existed";
     else
       echo "Installing Makefile...";
-      sudo apt install make --yes;
+      apt install make --yes;
     fi;
 fi
 
