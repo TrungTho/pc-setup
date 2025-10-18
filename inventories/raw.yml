@@ -3,3 +3,4 @@ all:
     localhost:
       ansible_connection: local # Ensures local connection without SSH
       ansible_host: 127.0.0.1 # Defines the IP address
+      is_privileged: true # set it true if we need the playbook run on privileged mode

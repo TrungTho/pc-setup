@@ -7,7 +7,7 @@
   serial: 1
 
   vars_files:
-    - aliases.yml
+    - shell_configs.yml
     - mas.yml
     - general_deps.yml
     - apt_deps.yml

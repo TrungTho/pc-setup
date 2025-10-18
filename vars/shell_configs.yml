@@ -28,3 +28,4 @@ all_aliases:
   - export now='--force --grace-period 0'
   - complete -o default -F __start_kubectl k
   - export PAGER="less -F -X"
+  - source ~/.nvm/nvm.sh
