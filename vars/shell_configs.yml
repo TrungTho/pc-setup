@@ -20,7 +20,7 @@ all_aliases:
   - alias pip='pip3'
   - alias g='gcloud'
   - alias kus='kustomize'
-  - alias amendforce='git commit --amend --no-edit && git push --force'
+  - alias amendforce='git commit --amend --no-edit && git push --force --force-with-lease'
   - alias amen0edit='git commit --amend --no-edit'
   - alias stopallcontainer='docker ps --format json | jq .ID | xargs -I % docker stop %'
   - alias vpnreset='sh /Users/Tho_Tran/Desktop/vpn-reset.sh';
