@@ -134,9 +134,9 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_security_group" "allow_ssh" {
-  name        = "allow_ssh_and_ssm_traffic"
-  description = "Allow inbound SSH and all outbound"
+resource "aws_security_group" "allow_traffic" {
+  name        = "allow_ssh_ssm_and_http_traffic"
+  description = "Allow inbound SSH, HTTP and all outbound"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -147,13 +147,21 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Access to server from Internet"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = { Name = "Allow-SSH" }
+  tags = { Name = "General-NSG" }
 }
 
 # ----------------------------------------------------------------------------------
@@ -205,7 +213,7 @@ resource "aws_instance" "public_instance" {
   key_name = aws_key_pair.generated_key.key_name
 
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [aws_security_group.allow_traffic.id]
 
   # Ensure the instance does NOT get a separate public IP address from the subnet settings,
   # as we are attaching a dedicated EIP.
