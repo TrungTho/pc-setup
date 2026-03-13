@@ -24,6 +24,7 @@ all_aliases:
   - alias allamendforce='git add . && git commit --amend --no-edit && git push --force --force-with-lease'
   - alias amen0edit='git commit --amend --no-edit'
   - alias stopallcontainer='docker ps --format json | jq .ID | xargs -I % docker stop %'
+  - alias quote='curl -sk https://api.quotable.io/random | jq'
   - export yaml='--dry-run=client -oyaml'
   - export now='--force --grace-period 0'
   - complete -o default -F __start_kubectl k
