@@ -29,5 +29,6 @@ all_aliases:
   - export now='--force --grace-period 0'
   - complete -o default -F __start_kubectl k
   - export PAGER="less -F -X"
+  - quote() { for i in $(seq 1 $1); do echo "~~~~~~~~~~ $i ~~~~~~~~~~"; curl -sk https://api.quotable.io/random | jq '(.content + " - " + .author)'; done; }
   - source ~/.nvm/nvm.sh
   - source $ZSH/oh-my-zsh.sh
