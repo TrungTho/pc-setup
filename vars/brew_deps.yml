@@ -23,3 +23,4 @@ brew_dependencies:
   - istioctl
   - thefuck
   - zsh-completions
+  - ncdu
